@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Vista xhtl de Mantenimientos de Proveedores.
+-->
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                template="/layout/templateBDC.xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name ="body">
+        <center>
+            <h:form id="forprincipal">
+                <p:growl showDetail= "true" showSummary="true" />
+                <p:panel id="basic" header="Mantenimiento de Proveedores" >
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" action= "#{mttoProveedor.limpiarPantalla()}" update="@all"
+                                    icon="ui-icon-plus" immediate="true"  />
+                        <p:menuitem value="Guardar" update="forprincipal" action="#{mttoProveedor.insertarProveedor()}"
+                                    icon="ui-icon-disk"  id="btnGuardar" disabled="false" />
+                                                
+                        <p:menuitem value="Buscar" update="forprincipal" action="#{mttoProveedor.buscarProveedor()}"
+                                    icon=" ui-icon-search" immediate="true" />
+                    </p:menubar>
+
+
+                    <p:accordionPanel    multiple="false" id="forPanel" activeIndex="" >
+                        <p:tab title="Ingresar Proveedor"  closable="true"   >
+                            <h:panelGrid columns="4" width="90%" >
+                                <h:outputLabel value ="Id Proveedor:"/>
+                                <p:inputText value ="#{mttoProveedor.idProveedor}"
+                                             readonly ="true" style ="width: 40px"/>
+                                <p:outputLabel  for=" ipt1" value="Nombre Proveedor:"/>
+                                <p:inputText id="ipt1" value ="#{mttoProveedor.nomProveedor}" required="true" requiredMessage="Nombre de Proveedor es Obligatorio"/>
+                                <p:outputLabel for="ipt2" value="N° Registro:"/>
+                                <p:inputText id="ipt2" value="#{mttoProveedor.noRegistro}" required="true" requiredMessage="Numero de Registro es Obligatorio"/>
+                                <p:outputLabel for="iNit" value="NIT:"/>
+                                <p:inputMask id="iNit" value="#{mttoProveedor.nitProveedor}" mask="9999-999999-999-9" required="true" requiredMessage="NIT de Proveedor es Obligatorio"/>
+                                <p:outputLabel for="ipt3" value="Direccion:"/>
+                                <p:inputText id="ipt3" value="#{mttoProveedor.direccion}" required="true" requiredMessage="Direccion de Proveedor es Obligatorio"/>
+                                <h:outputLabel value="Telefono:"/>
+                                <p:inputMask id="iTel" value="#{mttoProveedor.telefono}" mask="9999-9999"/> 
+                                <h:outputLabel value ="Email" />
+                                <p:inputText id="iEmail" value="#{mttoProveedor.email}"/> 
+                            </h:panelGrid>
+                        </p:tab>
+                    </p:accordionPanel> 
+
+                    <h:panelGrid>
+                        <p:dataTable id="tablaProveedor" emptyMessage=""
+                                     value="#{mttoProveedor.lstProveedor}"
+                                     var="dimp" rowKey="#{dimp.idproveedor}"
+                                     selectionMode="single" rows="10" 
+                                     editable="true" paginator="true" 
+                                     rowsPerPageTemplate="10" scrollable="true"
+                                      >
+                            <p:ajax event="rowEdit" listener="#{mttoProveedor.onSelect()}" update=":forprincipal:forPanel"   />
+                            <p:column headerText="Id" width="25" style="align-content: center" >
+                                <h:outputText value="#{dimp.idproveedor}" />                                
+                            </p:column>
+                            <p:column headerText="Nombre Proveedor" width="150"  style=" align-content: center" filterBy="#{dimp.proveedor}" >
+                                <h:outputText  value="#{dimp.proveedor}"/>                                
+                            </p:column>
+                            <p:column headerText="N° Registro" width="100" style=" align-content: center" filterBy="#{dimp.noregistro}" >
+                                <h:outputText value="#{dimp.noregistro}"/>                                
+                            </p:column>
+                            <p:column headerText="NIT" width="100" style=" align-content: center" filterBy="#{dimp.nit}" >
+                                <h:outputText value="#{dimp.nit}" />                                
+                            </p:column>
+                            <p:column headerText="Dirección" width="300" style=" align-content: center" filterBy="#{dimp.direccion}">
+                                <h:outputText value="#{dimp.direccion}"/>                                
+                            </p:column>
+                            <p:column headerText="Telefono" width="100" style=" align-content: center" filterBy="#{dimp.telefono}" >
+                                <h:outputText value="#{dimp.telefono}" />                                
+                            </p:column>
+                            <p:column headerText="Email" width="200" style="align-content: center" filterBy="#{dimp.email}" >
+                                <h:outputText value="#{dimp.email}" />                                
+                            </p:column>
+                            
+                            <p:ajax event="rowEdit"  listener="#{mttoProveedor.actualizarProveedor()}" />
+                            <p:ajax event="rowEditCancel"  listener="#{mttoProveedor.onEdit()}"/>
+                            
+                            <p:column style=" align-content: center" headerText="Modificar" width="75">
+                                <p:rowEditor     />
+                            </p:column>
+                            
+                        </p:dataTable>
+                    </h:panelGrid>
+                </p:panel> 
+            </h:form>
+        </center>
+    </ui:define>
+</ui:composition>

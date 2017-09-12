@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+        template="/layout/templateBDC.xhtml">
+    <ui:define name="body">
+      <br />
+            <center>
+                <h:form id="formA">
+
+			<p:growl globalOnly="true" sticky="false" life="3000"
+                                 autoUpdate="true" id="growl"  showSummary="true" showDetail="true" />
+			<p:focus />
+
+			<p:fieldset style="width: 70%;margin:auto;"
+				legend="#{mttoPerfil.instance.idPerfil==null?'Perfil Nuevo':'Editar Perfil'}">
+				<p:layout id="layout" style="min-width:700px;min-height:400px;">
+
+					<p:layoutUnit position="center"
+						header="Perfil">
+						<center>
+							<h:panelGrid columns="4" cellpadding="5">
+
+                                                            <h:outputLabel value="Codigo" for="cod" />
+                                                                <p:inputText id="cod" value="#{mttoPerfil.instance.codigo}"
+                                                                             required="true"  requiredMessage="Codigo requerido">
+                                                                </p:inputText>
+                                                                <h:outputLabel value="Nombre" for="nom" />
+                                                                <p:inputText id="nom" value="#{mttoPerfil.instance.nombre}"
+                                                                             required="true" requiredMessage="Nombre requerido" >
+                                                                </p:inputText>
+                                                                
+							</h:panelGrid>
+							<h:panelGrid columns="2" cellpadding="5">
+								<h:outputLabel value="Descripcion" />
+                                                                <p:inputTextarea value="#{mttoPerfil.instance.descripcion}"
+                                                                                 >
+                                                                </p:inputTextarea>
+							</h:panelGrid>
+
+							<p:messages id="messages" showDetail="false" autoUpdate="false" closable="true" />
+                                                        						<p:separator />
+							<!-- Navigation Tree -->
+						
+						</center>
+					    </p:layoutUnit>
+                                            
+                                    <p:layoutUnit position="east" >
+                                        
+                                        	<p:panel header="Menus Asociados">
+								<p:tree value="#{mttoPerfil.menusTreeNode}" var="res"
+									id="checkboxTree" selectionMode="checkbox"
+									selection="#{mttoPerfil.menusAgregados}">
+									<p:treeNode>
+                                                                            <h:outputText value="#{res}" />
+									</p:treeNode>
+								</p:tree>
+							</p:panel>
+                                    </p:layoutUnit>
+                                    					
+                                             <p:layoutUnit position="north">
+						<center>
+							<h:panelGroup id="controles">
+                                                            <p:commandButton  action="lista?faces-redirect=true" 
+									 icon=" ui-icon-arrowreturnthick-1-w"
+                                                                         value="Lista" ajax="false" immediate="true"  >
+								</p:commandButton>
+								<p:commandButton action="mant?facesRedirect=true" icon="ui-icon-plusthick"
+									value="Nuevo" 
+                                                                        immediate="true" ajax="false" actionListener="#{mttoPerfil.startNew()}" >
+                                                                    <f:param name="accion" value="Crear" />
+                                                                </p:commandButton>
+                                                                <p:commandButton action="lista?facesRedirect=true" actionListener="#{mttoPerfil.save}" 
+									rendered="#{mttoPerfil.instance.idPerfil==null}" icon="ui-icon-disk"
+                                                                        value="Guardar"  ajax="false" update="growl" process="@all" />
+								<p:commandButton rendered="#{mttoPerfil.instance.idPerfil!=null}"
+									icon="ui-icon-disk" value="Guardar" onclick="PF('dlg').show();" process="@all" />
+                                                                <p:commandButton type="button"
+									rendered="#{mttoPerfil.instance.idPerfil!=null}" icon="ui-icon-trash"
+									value="Eliminar" onclick="PF('dlgDelete').show();" />
+							</h:panelGroup>
+						</center>
+					</p:layoutUnit>
+				</p:layout>
+			</p:fieldset>
+		</h:form>
+            </center>
+      <br style="clear: both" />  
+      <p:dialog id="dialog" header="Eliminar"
+			widgetVar="dlgDelete" modal="true" resizable="false">
+			<h:form>
+				<p>Seguro de elimnar</p>
+				<h:panelGrid columns="2">
+					<p:commandButton icon="cancelBtn" value="Cancelar" type="button"
+						onclick="PF('dlgDelete').hide();">
+					</p:commandButton>
+					<p:commandButton icon="deleteBtn" 
+						action="lista?facesRedirect=true" ajax="false" value="Eliminar"
+                                                actionListener="#{mttoPerfil.delete()}" immediate="true" process="@all">
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+      
+      		<p:dialog id="confirmation" resizable="false" widgetVar="dlg">
+			<f:facet name="header">
+					Editar
+				</f:facet>
+			<f:facet name="controls">
+				<h:panelGroup>
+					<h:graphicImage value="/images/close.png"
+						onclick="PF('dlg').hide();" />
+				</h:panelGroup>
+			</f:facet>
+			<h:form id="fm1">
+				<p>Seguro de Editar</p>
+				<p:commandButton icon="cancelBtn" value="Cancelar"
+					onclick="PF('dlg').hide();">
+				</p:commandButton>
+				<p:commandButton action="lista?facesRedirect=true" ajax="false"
+                                                 actionListener="#{mttoPerfil.update()}"
+                                                 icon="modifyBtn" value="Continuar" process="@all"
+					onclick="PF('dlg').hide();" >
+				</p:commandButton>
+			</h:form>
+		</p:dialog>
+     </ui:define>
+</ui:composition>

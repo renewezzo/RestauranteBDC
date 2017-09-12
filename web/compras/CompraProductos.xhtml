@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/layout/templateBDC.xhtml">
+    <ui:define name="body">
+        <h:form id="forprincipal" >
+            <p:growl showDetail="true" showSummary="true" />
+            <p:panel id="basic" header="Compras a proveedores"  >
+                <p:menubar>
+                    <p:menuitem value="Nuevo" update="forprincipal" 
+                                action="#{comprasBeans.nuevaCompra()}"
+                                icon="ui-icon-plus" />
+                    <p:menuitem value="Guardar" id="btnGuardarDat"
+                                update="forprincipal" 
+                                rendered="#{comprasBeans.mostrarBtnGuardar}" 
+                                action="#{comprasBeans.guardarCompra()}" 
+                                icon="ui-icon-disk" />
+                    <p:menuitem value="Ingreso a compra"
+                                 update="forprincipal" 
+                                icon=" ui-icon-refresh"
+                                rendered="#{comprasBeans.mostrarBtnActualizarExit}"
+                                action="#{comprasBeans.ActualizarExistenciaCompra()}"/>
+                    
+                    <p:menuitem value="Imprimir" action="#{comprasBeans.imprimitCompra()}"
+                                icon="ui-icon-print" />
+                    
+                     <p:menuitem value="Monitor" action="#{comprasBeans.mostrarDialogoMonCompras()}"
+                                icon=" ui-icon-search" />
+                     
+                </p:menubar>
+                <h:panelGrid columns="2" width="100%">
+                    <h:panelGrid columns="6" width="80%">
+                        <p:outputLabel  value="No Documento : " for="idPrue"/>
+                        <p:inputText readonly="true" id="idPrue" 
+                                     required="true" value="#{comprasBeans.nodocu}"  />
+                        <h:outputLabel  value="Usuario: "  />
+                        <p:inputText readonly="true" value="#{comprasBeans.usr}"  />
+                        <h:outputLabel  value="Sucursal "  />
+                        <p:inputText  readonly="true" value="#{comprasBeans.sucursal}"  />
+                        <h:outputLabel  value="Codigo "  />
+                        <p:inputText  value="#{comprasBeans.codigo}"  />
+
+                        <h:outputLabel  value="Estado "  />
+                        <p:inputText  readonly="true" value="#{comprasBeans.estado}"  />   
+                        <h:outputLabel  value="Fecha "  />
+                        <p:inputText readonly="true" value="#{comprasBeans.fecha}"  >
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </p:inputText>
+
+                        <h:outputLabel  value="Serie "  />
+                        <p:inputText   value="#{comprasBeans.serie}"  />
+
+                    </h:panelGrid>
+                    <h:panelGrid columns="3" width="20%">
+                        <p:outputLabel  for="idr" value="Proveedor "  />
+                        <p:inputText readonly="true" id="idr"  required="true"   value="#{comprasBeans.nombreProveedor}"  style=" width: 100%" />
+                        <p:commandButton   action="#{comprasBeans.mostrarDialogProveedor()}"
+                                           id="iconOnly" 
+                                           
+                                           icon="ui-icon-search" title="Icon Only" />
+
+
+                        <h:outputLabel  value="Observaciones "  />
+                        <p:inputTextarea rows="3" cols="25" value="#{comprasBeans.observacion}"  />
+
+                    </h:panelGrid>
+
+                </h:panelGrid>
+
+                <h:panelGrid >
+                    <p:dataTable value="#{comprasBeans.lstCompradeta}"
+                                 id="tabladetalle" rows="8"
+                                 var="det"   emptyMessage=""    paginator="true">
+                        <p:ajax event="rowEdit" listener="#{comprasBeans.onRowEdit}" />   
+      
+                        <p:column headerText="cod.">
+                            <h:outputText value="#{det.idproducto.idproducto}" />
+                        </p:column>
+
+                        <p:column headerText="Descripcion">
+                            <h:outputText value="#{det.idproducto.producto}"  />
+                        </p:column>
+
+                        <p:column headerText="Cantidad Solic.">
+                             <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{det.cantidadsolicitada}" />
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText id="modelInput" value="#{det.cantidadsolicitada}" style="width:70%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Cantidad Conf. " rendered="#{comprasBeans.mostrarCantConfirmada}">
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{det.cantidadconfirmada}" />
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText  value="#{det.cantidadconfirmada}" style="width:70%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Precio">
+                            <h:outputText value="#{det.precio}"  />
+                        </p:column>
+                        <p:column headerText="Monto">
+                            <h:outputText value="#{det.monto}"  />
+                        </p:column>
+                        <p:column headerText="Imp">
+                            <h:outputText value="#{det.iva}" />
+                        </p:column>
+                        <p:column headerText="Total">
+                            <h:outputText value="#{det.total}" />
+                        </p:column>
+                        <p:column  rendered="#{comprasBeans.mostrarBtnGuardar}"  style="width:32px">
+                            <f:facet name="header">
+                                <p:commandButton  
+                                    id="iconOnly" action="#{comprasBeans.mostrarDialogProd()}"
+                                    icon="ui-icon-plus"  />
+                            </f:facet>
+                            <p:rowEditor />
+                        </p:column>
+                        <f:facet name="footer">
+          
+                        <h:commandLink>
+                <p:graphicImage value="/images/excel.png" width="18"/>
+                <p:dataExporter type="xls" target="tabladetalle" fileName="deta" />
+            </h:commandLink>
+        </f:facet>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:panel>
+
+            <p:dialog header="Buscar Proveedor" width="50%" widgetVar="dialogoProveedor" minHeight="100">
+                <h:panelGrid columns="1" width="100%">
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" action="#{comprasBeans.limpiarProveedor()}"
+                                    icon="ui-icon-plus" />
+                        <p:menuitem value="Buscar" update="tablaProveedor"
+                                    action="#{comprasBeans.buscarProveedor()}"
+                                    icon=" ui-icon-search"  />
+                    </p:menubar>
+                </h:panelGrid>
+                <h:panelGrid columns="2" width="80%">
+                    <h:outputLabel  value="Nombres "  />
+                    <p:inputText   value="#{comprasBeans.nombreProveedor}" />
+                </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable value="#{comprasBeans.lstProveedor}"
+                                 id="tablaProveedor" widgetVar="tablaProveedor" var="dprov"
+                                 paginator="true"  rows="7"
+                                 selectionMode="single" rowKey="#{dprov.idproveedor}"  emptyMessage=""  >
+                               
+                        <p:ajax event="rowSelect" update="forprincipal" process="@all"
+                                listener="#{comprasBeans.onRowSelectProveedor}" 
+                        />
+                        <p:column filterBy="#{dprov.proveedor}" headerText="nombre">
+                            <h:outputText value="#{dprov.proveedor}"  />
+                        </p:column>
+                        <p:column filterBy="#{dprov.direccion}"  headerText="direccion">
+                            <h:outputText value="#{dprov.direccion}"  />
+                        </p:column>
+                        <p:column filterBy="#{dprov.telefono}"  headerText="tel">
+                            <h:outputText value="#{dprov.telefono}"  />
+                        </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            <p:dialog header="Buscar producto" widgetVar="dialogoProducto"
+                      width="50%"
+                      >
+                <h:panelGrid columns="1" width="100%">
+                    <p:menubar>
+                        <p:menuitem value="Limpiar" action="#{comprasBeans.limpiarProducto()}"
+                                    icon="ui-icon-plus" />
+                        <p:menuitem id="idBuscarPro" value="Buscar" update="tablaProdd"
+                                    action="#{comprasBeans.buscarProducto()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                <h:panelGrid columns="2" width="80%">
+                                      <h:outputLabel  value="Cantidad    "  />
+                                      <p:inputNumber id="cantidadSolic" maxValue="999999"
+                                                     
+                                                     minValue="0"
+                                                   value="#{comprasBeans.cantidadSolic}" />
+                    <h:outputLabel  value="Producto "  />
+                    <p:inputText   value="#{comprasBeans.descripcionProducto}" />
+                </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable id="tablaProdd" 
+                                 value="#{comprasBeans.lstProducto}"
+                                 var="dpro" rowKey="#{dpro.idproducto}"  
+                                 paginator="true"
+                                 selectionMode="single" rows="5"  >                        
+                        <p:ajax event="rowSelect" update="forprincipal" process="@all"  
+                            listener="#{comprasBeans.onRowSelect}"/>
+                        <p:column filterBy="#{dpro.producto}" headerText="descripcion">
+                            <h:outputText value="#{dpro.producto}"  />
+                        </p:column>
+                        <p:column headerText="medida" filterBy="#{dpro.medida}" >
+                            <h:outputText value="#{dpro.medida}"  />
+                        </p:column>
+                        <p:column headerText="Precio S/I" filterBy="#{dpro.preciocompra}" >
+                            <h:outputText value="#{dpro.preciocompra}"  />
+                        </p:column>
+                        <p:column headerText="tipo" filterBy="#{dpro.tipoproducto}">
+                            <h:outputText value="#{dpro.tipoproducto}"  />
+                        </p:column>
+                        <p:column headerText="grupo" filterBy="#{dpro.grupoproducto}">
+                            <h:outputText value="#{dpro.grupoproducto}"  />
+                     
+                        </p:column>
+                               <p:column headerText="marca"  filterBy="#{dpro.marcaproducto}">
+                                <h:outputText value="#{dpro.marcaproducto}"  />
+                            </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            
+            <p:dialog header="Monitor Compras" widgetVar="dialogoCompras"
+                      width="50%">
+                <h:panelGrid columns="1" width="100%"  >
+                    <p:menubar>
+                        <p:menuitem id="idBuscarCompr" value="Buscar" update="tablaCompras"
+                                      action="#{comprasBeans.buscarCompras()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                <h:panelGrid columns="2" width="80%">
+ 
+                    <h:outputLabel  value="Fecha Inicial "  />
+                    <p:calendar value="#{comprasBeans.fechaIniMonitor}"/>
+                       <h:outputLabel  value="Fecha Final "  />
+                       <p:calendar value="#{comprasBeans.fechaFinMonitor}"/>
+                </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable value="#{comprasBeans.lstCompraMonitor}"
+                                 id="tablaCompras"
+                                 var="dcompra"   rowKey="#{dcompra.compraPK}"
+                                 selectionMode="single"  rows="10"  >                        
+                        <p:ajax event="rowSelect" update="forprincipal"
+                                listener="#{comprasBeans.onRowSelectCompra}" process="@all"  
+                                />
+                        <p:column  headerText="Numero" filterBy="#{dcompra.compraPK.idcompra}">
+                            <h:outputText value="#{dcompra.compraPK.idcompra}"  />
+                        </p:column>
+                        <p:column headerText="Proveedor" filterBy="#{dcompra.idproveedor.proveedor}"  >
+                            <h:outputText value="#{dcompra.idproveedor.proveedor}" />
+                        </p:column>
+                        <p:column headerText="fecha"  filterBy="#{dcompra.fechacompra}" >
+                            <h:outputText value="#{dcompra.fechacompra}" >
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="usuario" filterBy="#{dcompra.idusuario.idusuario}"  >
+                            <h:outputText  value="#{dcompra.idusuario.idusuario}" />
+                   
+                        </p:column>
+                          <p:column headerText="estado" filterBy="#{dcompra.idestado.estado}" >
+                                <h:outputText value="#{dcompra.idestado.estado}" />
+                            </p:column>
+                              <f:facet name="footer">
+          
+                        <h:commandLink>
+                <p:graphicImage value="/images/excel.png" width="18"/>
+                <p:dataExporter type="xls" target="tablaCompras" fileName="deta" />
+            </h:commandLink>
+        </f:facet>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            
+            
+        </h:form>
+    </ui:define>
+</ui:composition>

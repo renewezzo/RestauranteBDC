@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/layout/templateBDC.xhtml">
+    <ui:define name="body">
+         
+        <h:form id="forprincipal" >
+            <p:growl showDetail="true" showSummary="true" />
+            <p:panel id="basic" header="Recetas" style="width: 80%" >
+                <p:menubar>
+                    <p:menuitem value="Nuevo" update="forprincipal" 
+                                action="#{recetas.limpiarPantalla()}"
+                                icon="ui-icon-plus" />
+                    <p:menuitem value="Guardar" 
+                                 update="forprincipal" 
+                                action="#{recetas.guaradarReceta()}"
+                                rendered="#{recetas.mostrarGuardar}"
+                               
+                                icon=" ui-icon-disk" />
+                    <p:menuitem value="Monitor"  action="#{recetas.mostrarDialogMonitor()}"
+                                icon=" ui-icon-search" />
+                </p:menubar>
+                    <h:panelGrid columns="6" width="100%">
+                        <h:outputLabel  value="No Receta : "/>
+                        <p:inputText value="#{recetas.receta.idreceta}" readonly="true"  />
+                         <h:outputLabel  value="Descricion "  />
+                         <p:inputText    value="#{recetas.descripcion}"  /> 
+                        <h:outputLabel  value="Producto "  />
+                        <h:panelGroup >
+                        <p:inputText value="#{recetas.productoPT}"  readonly="true"  />
+                        <p:commandButton rendered="#{recetas.mostrarGuardar}"   action="#{recetas.mostrarDialogProdusStoPT()}"
+                                           id="iconOnly" 
+                                           icon="ui-icon-search" title="Icon Only" />
+                        </h:panelGroup>
+                         <h:outputLabel  value="cantidad "  />
+                         <p:inputNumber   value="#{recetas.cantidadPT}"  /> 
+                        <h:outputLabel  value="fecha  "  />
+                        <p:inputText readonly="true"  value="#{recetas.receta.fechacreacion}" >
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </p:inputText>
+                         <h:outputLabel  value="Media  "  />
+                         <p:inputText readonly="true"  value="#{recetas.medidaProductoMP}" />
+                    </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable   id="tablaDetalle" paginator="true"
+                        var="det" value="#{recetas.lstRecetaDetalle}"
+                        emptyMessage=""  
+                        rowKey="#{det.recetadetallePK.idproducto}"
+                        editable="true">
+                        
+                        <p:column headerText="cod.">
+                            <h:outputText value="#{det.producto.idproducto}"  />
+                        </p:column>
+
+                        <p:column headerText="Descripcion">
+                            <h:outputText value="#{det.producto.producto}" />
+                        </p:column>
+
+                        <p:column headerText="Medida">
+                            <h:outputText value="#{det.producto.idmedida.medida}" />
+                        </p:column>
+                        <p:column headerText="Cantidad " >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{det.cantidad}" />
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputNumber  value="#{det.cantidad}" style="width:70%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:32px"  rendered="#{recetas.mostrarGuardar}">
+                            <f:facet name="header">
+                                <p:commandButton  
+                                    id="iconOnly" 
+                                    action="#{recetas.mostrarDialogProd()}"
+                                    icon="ui-icon-plus"  />
+                            </f:facet>
+                            <p:rowEditor />
+                        </p:column>
+                           <p:column style="width:32px" headerText="- "   rendered="#{recetas.mostrarGuardar}">
+         
+                               <p:commandButton update="tablaDetalle"
+                                                       action="#{recetas.eliminarProducto(det)}"
+                                                        icon="ui-icon-close"  
+                                                      />
+                        </p:column>
+                                                <f:facet name="footer">
+          
+                        <h:commandLink>
+                <p:graphicImage value="/images/excel.png" width="18"/>
+                <p:dataExporter type="xls" target="tablaDetalle" fileName="detallerecetas" />
+            </h:commandLink>
+        </f:facet>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:panel>
+            
+            <p:dialog header="Buscar producto" widgetVar="dialogoProducto"
+                      width="50%"
+                      >
+                <h:panelGrid columns="1" width="100%">
+                    <p:menubar>
+                        <p:menuitem value="Limpiar"
+                                    icon="ui-icon-plus" />
+                        <p:menuitem id="idBuscarPro" value="Buscar" update="tablaProdd"
+                                    action="#{recetas.buscarProducto()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                <h:panelGrid columns="2" width="80%">
+                     <h:outputLabel  value="Cantidad    "  />
+                     <p:inputNumber id="cantidadSolic" value="#{recetas.cantidadMP}"  />
+                     <h:outputLabel  value="Producto "  />
+                     <p:inputText  value="#{recetas.productoMP}" />
+                </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable id="tablaProdd" 
+                                 value="#{recetas.lstProducto}"
+                                 emptyMessage=""
+                                 paginator="true"
+                                  var="dpro" rowKey="#{dpro.idproducto}"       
+                                 selectionMode="single" rows="7"  >                        
+                        <p:ajax event="rowSelect"  update="forprincipal"  process="@all"
+                                listener="#{recetas.onRowSelectProduc}"
+                            />
+                       
+                        <p:column filterBy="#{dpro.producto}" headerText="descripcion">
+                            <h:outputText value="#{dpro.producto}"  />
+                        </p:column>
+                        <p:column headerText="medida" filterBy="#{dpro.medida}" >
+                            <h:outputText value="#{dpro.medida}"  />
+                        </p:column>
+                        <p:column headerText="tipo" filterBy="#{dpro.tipoproducto}">
+                            <h:outputText value="#{dpro.tipoproducto}"  />
+                        </p:column>
+                        <p:column headerText="grupo" filterBy="#{dpro.grupoproducto}">
+                            <h:outputText value="#{dpro.grupoproducto}"  />
+                            <p:column headerText="marca"  filterBy="#{dpro.marcaproducto}">
+                                <h:outputText value="#{dpro.marcaproducto}"  />
+                            </p:column>
+                        </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            
+            <p:dialog header="Monitor Recetas" widgetVar="dialogoRecetas"
+                      width="50%"
+                      >
+                <h:panelGrid columns="1" width="100%">
+                    <p:menubar>
+                        <p:menuitem value="Limpiar"
+                                    icon="ui-icon-plus" />
+                        <p:menuitem value="Buscar" 
+                                    update="tablad"
+                                    action="#{recetas.buscarRecetas()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                
+                <h:panelGrid >
+                    <p:dataTable id="tablad" 
+                                 value="#{recetas.lstRecetaMon}"
+                                 var="det"
+                                 emptyMessage=""
+                                 paginator="true"
+                                 selectionMode="single" 
+                                 rowKey="#{det.idreceta}"
+                                 rows="8"  >                        
+                        <p:ajax event="rowSelect"  listener="#{recetas.onRowSelectMon}"
+                                update="forprincipal" process="@all"  
+                            />
+                        <p:column filterBy="#{det.idreceta}" headerText="id"  >
+                            <h:outputText value="#{det.idreceta}"  />
+                        </p:column>
+                        
+                        <p:column filterBy="#{det.descripcion}" headerText="descripcion">
+                            <h:outputText value="#{det.descripcion}"  />
+                        </p:column>
+                        <f:facet name="footer">
+          
+                        <h:commandLink>
+                <p:graphicImage value="/images/excel.png" width="18"/>
+                <p:dataExporter type="xls" target="tablad" fileName="recetas" />
+            </h:commandLink>
+        </f:facet>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            
+            <p:dialog header="Buscar producto PT" widgetVar="dialogoProductoPT"
+                      width="50%">
+                <h:panelGrid columns="1" width="100%">
+                    <p:menubar>
+                        <p:menuitem value="Limpiar"
+                                    icon="ui-icon-plus" />
+                        <p:menuitem id="idBuscarProPT" value="Buscar" update="tablaProddPT"
+                                    action="#{recetas.buscarProductoPT()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                <h:panelGrid columns="2" width="80%">
+                
+                            <h:outputLabel  value="Cantidad    "  />
+                            <p:inputNumber value="#{recetas.cantidadPT}"  />
+                     <h:outputLabel  value="Producto "  />
+                     <p:inputText  value="#{recetas.productoPT}" />
+                      
+                </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable id="tablaProddPT" 
+                                 emptyMessage=""
+                                 value="#{recetas.lstProductoPT}"
+                                  var="dpro" rowKey="#{dpro.idproducto}"      
+                                  paginator="true"
+                                 selectionMode="single" rows="5"  >                        
+                        <p:ajax event="rowSelect"  update="forprincipal"  process="@all"
+                                listener="#{recetas.onRowSelectProducuctoPT}"
+                            />
+                       
+                        <p:column filterBy="#{dpro.producto}" headerText="descripcion">
+                            <h:outputText value="#{dpro.producto}"  />
+                        </p:column>
+                        <p:column headerText="medida" filterBy="#{dpro.medida}" >
+                            <h:outputText value="#{dpro.medida}"  />
+                        </p:column>
+                        <p:column headerText="tipo" filterBy="#{dpro.tipoproducto}">
+                            <h:outputText value="#{dpro.tipoproducto}"  />
+                        </p:column>
+                        <p:column headerText="grupo" filterBy="#{dpro.grupoproducto}">
+                            <h:outputText value="#{dpro.grupoproducto}"  />
+                         
+                        </p:column>
+                           <p:column headerText="marca"  filterBy="#{dpro.marcaproducto}">
+                                <h:outputText value="#{dpro.marcaproducto}"  />
+                            </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+        </h:form>
+    </ui:define>
+</ui:composition>

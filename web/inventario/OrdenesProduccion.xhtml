@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/layout/templateBDC.xhtml">
+    <ui:define name="body">
+        <h:form id="forprincipal" >
+            <p:growl showDetail="true" showSummary="true" />
+            <p:panel id="basic" header="Ordenes de produccion"  >
+                <p:menubar>
+                    <p:menuitem value="Nuevo" update="forprincipal" 
+                                action="#{ordenProduccionBeans.limpiarPantalla()}"
+                                icon="ui-icon-plus" />
+                 
+                     <p:menuitem value="Guardar" action="#{ordenProduccionBeans.guardarOrden()}"
+                                   update="forprincipal" 
+                                   rendered="#{ordenProduccionBeans.guardar}"
+                                icon="ui-icon-disk" />
+                         <p:menuitem value="Monitor" 
+                                     action="#{ordenProduccionBeans.mostrarDialogMonirOT()}"
+                                icon=" ui-icon-search" />
+                </p:menubar>
+                    <h:panelGrid columns="8" width="100%">
+                        <h:outputLabel  value="No Documento : "/>
+                        <p:inputText readonly="true"  
+                                     value="#{ordenProduccionBeans.ordenProd.ordenproduccionPK.idordenproduccion}" />
+                    
+                          
+                        <h:outputLabel  value="Receta "  />
+                               <h:panelGroup >
+                                   <p:inputText readonly="true" value="#{ordenProduccionBeans.descripcionReceta}"   />
+                        
+                        <p:commandButton  rendered="#{ordenProduccionBeans.guardar}"   action="#{ordenProduccionBeans.mostrarDialogRecetas()}"
+                                           id="iconOnly" 
+                                           icon="ui-icon-search" title="Icon Only" />
+                       </h:panelGroup>  
+                        <h:outputLabel  value="Produto PT "  />
+                        <p:inputText  readonly="true" value="#{ordenProduccionBeans.producoPT}"  />
+                           <h:outputLabel  value="Medida "  />
+                           <p:inputText  readonly="true" value="#{ordenProduccionBeans.medidaPT}"    /> 
+                         
+                        <h:outputLabel  value="Fecha "  />
+                        <p:inputText readonly="true" value="#{ordenProduccionBeans.ordenProd.fechapedido}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </p:inputText>
+                            <h:outputLabel  value="Usuario: "  />
+                        <p:inputText readonly="true" 
+                                     value="#{ordenProduccionBeans.ordenProd.idusuario.idusuario}"  />
+     
+                        <h:outputLabel  value="Sucursal "  />
+                        <p:inputText  readonly="true" 
+                                      value="#{ordenProduccionBeans.ordenProd.sucursal.sucursal}"   />
+        
+                        <h:outputLabel  value="Cantidad a prepara "  />
+                        <p:inputText  readonly="true"
+                                      value="#{ordenProduccionBeans.cantidadArealizar}"   />         
+                    </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable value="#{ordenProduccionBeans.lstOrdenProdDetalle}"
+                                 var="det"   emptyMessage=""   editable="true">
+                        <p:column headerText="Descripcion">
+                            <h:outputText value="#{det.idproducto.producto}" />
+                        </p:column>
+                          <p:column headerText="medida">
+                              <h:outputText value="#{det.idproducto.idmedida.medida}" />
+                        </p:column>
+
+                        <p:column headerText="Cantidad">
+                            <h:outputText value="#{det.cantidadconfirmada}"  />
+                        </p:column>
+                  
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:panel>
+            
+            <p:dialog header="Monitor Recetas" widgetVar="dialogoRecetas"
+                      width="50%">
+                <h:panelGrid columns="1" width="100%"  >
+                    <p:menubar>
+                        <p:menuitem id="idBuscarCompr" value="Buscar" update="tablaCompras"
+                                    action="#{ordenProduccionBeans.buscarRecetas()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                                   <h:panelGrid columns="2" width="100%"  >
+                  <h:outputLabel  value="Cantidad a preparar "  />
+                  <p:inputNumber
+                                      value="#{ordenProduccionBeans.cantidadArealizar}"   />  
+                   </h:panelGrid>
+                  <h:panelGrid >
+                      <p:dataTable value="#{ordenProduccionBeans.lstReceta}"
+                                 id="tablaCompras"
+                                 var="dcompra" paginator="true"  rowKey="#{dcompra.idreceta}"
+                                 selectionMode="single"  rows="10"  >                        
+                        <p:ajax event="rowSelect" update="forprincipal"
+                                listener="#{ordenProduccionBeans.onRowSelectCompra}" process="@all"  
+                                />
+                        <p:column  headerText="Numero" >
+                            <h:outputText value="#{dcompra.idreceta}" />
+                        </p:column>
+                              <p:column  headerText="Descripcion " >
+                             <h:outputText value="#{dcompra.descripcion}" />
+                        </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            
+            
+              
+            <p:dialog header="Monitor produccion" widgetVar="dialogoMonitor"
+                      width="50%">
+                <h:panelGrid columns="1" width="100%"  >
+                    <p:menubar>
+                        <p:menuitem id="idBus" value="Buscar" update="tablaC"
+                                    action="#{ordenProduccionBeans.buscarOrdeneProd()}"
+                                    icon=" ui-icon-search" > 
+                        </p:menuitem>
+                    </p:menubar>
+                </h:panelGrid>
+                <h:panelGrid >
+                    <p:dataTable value="#{ordenProduccionBeans.lstOrdenProd}"
+                                 emptyMessage=""  id="tablaC" paginator="true"
+                                 var="de"  rowKey="#{de.ordenproduccionPK}"
+                                 selectionMode="single"  rows="7"  >          
+                        
+                        <p:ajax event="rowSelect" update="forprincipal"
+                                listener="#{ordenProduccionBeans.onRowSelectMonito}" process="@all"  
+                                />
+                        <p:column  headerText="No Orden">
+                            <h:outputText value="#{de.ordenproduccionPK.idordenproduccion}"  />
+                        </p:column>
+                        <p:column headerText="fecha"  >
+                            <h:outputText value="#{de.fechapedido}"  > 
+                                <f:convertDateTime  pattern="dd/MM/yyyy"/>
+                            </h:outputText>
+                        </p:column>
+                         <p:column headerText="sucursal"  >
+                             <h:outputText value="#{de.sucursal.sucursal}"  />
+                        </p:column>
+                         <p:column headerText="usuario"  >
+                             <h:outputText value="#{de.idusuario.idusuario}"  />
+                        </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </p:dialog>
+            
+            
+            
+            
+            
+            
+        </h:form>
+    </ui:define>
+</ui:composition>
